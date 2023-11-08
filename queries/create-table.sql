@@ -70,7 +70,6 @@ create table Customer (
     city                varchar(20) not null,
     state               varchar(20) not null,
     zip_code            int(5) unsigned not null,
-    phone_number        int(10) unsigned not null,
     passport_num        int(10) unsigned not null,
     passport_exp        date not null,
     passport_country    varchar(20) not null,
@@ -81,7 +80,7 @@ create table Customer (
 
 create table Phone_Number (
     email               varchar(20) not null,
-    phone_number        int(10) unsigned not null,
+    phone_number        double(20, 0) unsigned not null,
 
     primary key(email, phone_number),
     foreign key(email) references Customer(email)
@@ -95,7 +94,7 @@ create table Ticket (
     depart_date         date not null,
     depart_time         time not null,
     card_type           varchar(6) check (card_type in ('credit', 'debit')),
-    card_number         int(20) unsigned not null,
+    card_number         double(20, 0) unsigned not null,
     card_name           varchar(20) not null,
     expiration_date     date not null,
     cust_first_name     varchar(20) not null,
@@ -149,7 +148,7 @@ create table Email (
 create table Staff_Phone_Number (
     username            varchar(20) not null,
     airline_name        varchar(20) not null,
-    phone_number        int(10) not null,
+    phone_number        double(20, 0) not null,
 
     primary key(username, airline_name, phone_number),
     foreign key(username, airline_name) references Airline_Staff(username, airline_name)
