@@ -14,17 +14,40 @@
             </div>
         </header>
 
-        <div class="search_bar">
-            asdf
+        <div>
+            <form class="search_bar" action="/searchFlights" method="POST">
+                <label id="search_box"> Departure </label> 
+                <select name="departure_airport" required>
+                    <option value="" disabled selected>SELECT</option> 
+                    {% for airport in airports %}
+                    <option value={{airport['airport_name']}}>{{airport['airport_name']}}</option> 
+                    {% endfor %}
+                </select>
+                <label id="search_box"> Arrival </label> 
+                <select name="arrival_airport" required> 
+                    <option value="" disabled selected>SELECT</option> 
+                    {% for airport in airports %}
+                    <option value={{airport['airport_name']}}>{{airport['airport_name']}}</option> 
+                    {% endfor %}
+                </select>
+                <input type="submit" value = Search />
+                {% if error %}
+                    <p class="error"><strong>Error:</strong> {{error}}</p>
+                {% endif %}
+            </form>
         </div>
 
         <div class="flights">
+            {% if not flights %}
+                <p> No Flights </p>
+            {% else %}
             <table>
                 <th> Airline Name </th>
                 <th> Flight Number </th>
                 <th> Departure Airport </th>
                 <th> Departure Date </th>
                 <th> Departure Time </th>
+                <th> Status </th>
             {% for flight in flights %}
                 <tr>
                     <td>{{flight['airline_name']}}</td>
@@ -32,8 +55,10 @@
                     <td>{{flight['airport_name']}}</td>
                     <td>{{flight['depart_date']}}</td>
                     <td>{{flight['depart_time']}}</td>
+                    <td>{{flight['status']}}</td>
                 </tr>    
             {% endfor %}
+            {% endif %}
             </table>
         </div>
 
