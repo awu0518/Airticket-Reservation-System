@@ -13,8 +13,27 @@
                 <a id="login-link" href="/login"> Sign In </a>
             </div>
         </header>
-
         {% if search %}
+        <div>
+            <p> Check Flight Status </p>
+            <form class="search_bar" action="/checkStatus" method="POST">
+                <label id="search_box"> Airline </label>
+                <select name="airline_name" required>
+                    <option value="" disabled selected> SELECT </option>
+                    {% for airline in airlines %}
+                    <option> {{airline['airline_name']}} </option>
+                    {% endfor %}
+                </select>
+
+                <label id="search_box"> Flight ID </label>
+                <input type="text" name = "flight_id" required/> </br>
+
+                <label id="search_box"> Departure Date </label>
+                <input type="date", name="departure_date" required>
+
+                <input type="submit" value = "Get Status" />
+            </form>
+        </div>
         <div>
             <form class="search_bar" action="/searchFlights" method="POST">
                 <label id="search_box"> Departure </label> 
@@ -45,7 +64,9 @@
         {% else %}
         <a id="return" href="/"> Return to Search </a>
         {% endif %}
-
+        {% if result %}
+            <p> Current Result: {{result['status']}} </p>
+        {% else %}
         <div class="flights">
             {% if not flights %}
                 <p> No Flights </p>
@@ -59,7 +80,6 @@
                 <th> Arrival City </th>
                 <th> Arrival Date </th>
                 <th> Arrival Time </th>
-                <th> Status </th>
             {% for flight in flights %}
                 <tr>
                     <td>{{flight['airline_name']}}</td>
@@ -70,7 +90,6 @@
                     <td>{{flight['arrival_city']}}</td>
                     <td>{{flight['arrival_date']}}</td>
                     <td>{{flight['arrival_time']}}</td>
-                    <td>{{flight['status']}}</td>
                 </tr>    
             {% endfor %}
             {% endif %}
@@ -91,7 +110,6 @@
                 <th> Arrival City </th>
                 <th> Arrival Date </th>
                 <th> Arrival Time </th>
-                <th> Status </th>
             {% for flight in rflights %}
                 <tr>
                     <td>{{flight['airline_name']}}</td>
@@ -102,12 +120,12 @@
                     <td>{{flight['arrival_city']}}</td>
                     <td>{{flight['arrival_date']}}</td>
                     <td>{{flight['arrival_time']}}</td>
-                    <td>{{flight['status']}}</td>
                 </tr>    
             {% endfor %}
             {% endif %}
             </table>
         </div>
+        {% endif %}
         {% endif %}
     </body>
 </html>
