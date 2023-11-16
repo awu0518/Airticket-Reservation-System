@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect, url_for
 from helper import *
 import pymysql.cursors
 
@@ -40,6 +40,14 @@ def searchFlight():
         return render_template("index.html", airports=getAirports(conn), flights=depart_flights, rflights = return_flights, search=False)
     else:
         return render_template("index.html", airports=getAirports(conn), flights=depart_flights, search=False) 
+
+@app.route('/login')
+def login():
+    return render_template("login/login.html")
+
+@app.route('/register')
+def register():
+    return render_template("login/register.html")
 
 app.secret_key = 'some key that you will never guess'
 if __name__ == "__main__":
