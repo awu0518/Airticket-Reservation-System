@@ -7,9 +7,9 @@ insert into Airport values
     (15231, "PIT", "Pittsburgh", "United States", 3, "Both");
 
 insert into Customer values
-    ('cust01@gmail.com', 'cust01pass', 'Richard', 'Vazquez', 10, 'Random Srt', 1, "New York", "NY", 10013, 1111111111, 123456789, "2025-01-01", "United States", "1995-01-01"),
-    ('cust02@gmail.com', 'cust02pass', 'Garret', 'Moss', 201, 'Test Srt', 2, "Pittsburgh", "PA", 15215, 2222222222, 234567891, "2024-10-15", "United States", "1990-03-15"),
-    ('cust03@gmail.com', 'cust03pass', 'Cassandra', 'Russell', 4, 'Randomer Srt', 3, "New York", "NY", 10015, 3333333333, 345678912, "2027-04-30", "United States", "2000-08-28");
+    ('cust01@gmail.com', 'cust01pass', 'Richard', 'Vazquez', 10, 'Random Srt', 1, "New York", "NY", 10013, 123456789, "2025-01-01", "United States", "1995-01-01"),
+    ('cust02@gmail.com', 'cust02pass', 'Garret', 'Moss', 201, 'Test Srt', 2, "Pittsburgh", "PA", 15215, 234567891, "2024-10-15", "United States", "1990-03-15"),
+    ('cust03@gmail.com', 'cust03pass', 'Cassandra', 'Russell', 4, 'Randomer Srt', 3, "New York", "NY", 10015, 345678912, "2027-04-30", "United States", "2000-08-28");
 
 insert into Phone_Number values
     ('cust01@gmail.com', 1111111111),
