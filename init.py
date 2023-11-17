@@ -66,6 +66,41 @@ def login():
 def register():
     return render_template("login/register.html")
 
+@app.route('/staffLoginAuth', methods=['GET', 'POST'])
+def loginStaff():
+    username = request.form['username']
+    password = request.form['password']
+
+    cursor = conn.cursor()
+    query = "SELECT * FROM airline_staff WHERE username = %s and password = %s"
+    cursor.execute(query, (username, password))
+
+    data = cursor.fetchone()
+    
+    if (data):
+        session['username'] = username
+        return render_template("staff/home.html")
+    else:
+        return render_template("login/login.html", error = "Incorrect credentials")
+    
+@app.route('/custLoginAuth', methods=['GET', 'POST'])
+def customerStaff():
+    username = request.form['username']
+    password = request.form['password']
+
+    cursor = conn.cursor()
+    query = "SELECT * FROM customer WHERE email = %s and password = %s"
+    cursor.execute(query, (username, password))
+
+    data = cursor.fetchone()
+    
+    if (data):
+        session['username'] = username
+        return render_template("customer/home.html")
+    else:
+        return render_template("login/login.html", error = "Incorrect credentials")
+
+
 app.secret_key = 'some key that you will never guess'
 if __name__ == "__main__":
     app.run('127.0.0.1', 5000, debug=True)
