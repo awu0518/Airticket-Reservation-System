@@ -84,7 +84,7 @@ def loginStaff():
         return render_template("login/login.html", error = "Incorrect credentials")
     
 @app.route('/custLoginAuth', methods=['GET', 'POST'])
-def customerStaff():
+def loginCustomer():
     username = request.form['username']
     password = request.form['password']
 
