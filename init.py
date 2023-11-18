@@ -100,6 +100,13 @@ def loginCustomer():
     else:
         return render_template("login/login.html", error = "Incorrect credentials")
 
+@app.route('/getCustReg')
+def getCustReg():
+    return render_template("/login/customerReg.html")
+
+@app.route('/getStaffReg')
+def getStaffReg():
+    return render_template("/login/customerReg.html")
 
 app.secret_key = 'some key that you will never guess'
 if __name__ == "__main__":

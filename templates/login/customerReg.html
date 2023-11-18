@@ -1,0 +1,56 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/customerRegistration" method="POST">
+    <p> Personal Info </p>
+    <label id="search_box"> Email </label>
+    <input type="text" name = "email" required/> </br>
+    
+    <label id="search_box"> Password </label>
+    <input type="text" name = "password" required/> </br>
+
+    <label id="search_box"> First Name </label>
+    <input type="text" name = "first_name" required/> </br>
+    
+    <label id="search_box"> Last Name </label>
+    <input type="text" name = "last_name" required/> </br>
+
+    <label id="search_box"> Date of Birth </label>
+    <input type="date" name = "dob" required/> </br>
+
+    <p> Address </p>
+    <label id="search_box"> Building Number </label>
+    <input type="text" name = "building_num" required/> </br>
+
+    <label id="search_box"> Street Name </label>
+    <input type="text" name = "street" required/> </br>
+
+    <label id="search_box"> Apartment Number </label>
+    <input type="text" name = "apartment_num" required/> </br>
+
+    <label id="search_box"> City </label>
+    <input type="text" name = "city" required/> </br>
+
+    <label id="search_box"> State (ex. NY) </label>
+    <input type="text" name = "state" required/> </br>
+
+    <label id="search_box"> Zip Code </label>
+    <input type="text" name = "zip_code" required/> </br>
+
+    <p> Travel Info </p>
+    <label id="search_box"> Passport Number </label>
+    <input type="text" name = "passport_num" required/> </br>
+
+    <label id="search_box"> Passport Expiration </label>
+    <input type="date" name = "passport_exp" required/> </br>
+
+    <label id="search_box"> Passport Country </label>
+    <input type="text" name = "passport_country" required/> </br>
+</form>
+
+{% if error %}
+<p class="error"><strong>Error:</strong> {{error}}</p>
+{% endif %}
+</body>
+</html>
