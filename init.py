@@ -106,7 +106,11 @@ def getCustReg():
 
 @app.route('/getStaffReg')
 def getStaffReg():
-    return render_template("/login/customerReg.html")
+    cursor = conn.cursor()
+    query = "SELECT airline_name FROM airline"
+    cursor.execute(query)
+
+    return render_template("/login/staffReg.html", airlines=cursor.fetchall())
 
 app.secret_key = 'some key that you will never guess'
 if __name__ == "__main__":
