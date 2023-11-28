@@ -15,5 +15,32 @@
 
     <body>
         <p> Welcome {{data['first_name']}} {{data['last_name']}} </p>
+
+        <div class="flights">
+            {% if not flights %}
+                <p> No Flights </p>
+            {% else %}
+            <table>
+                <th> Flight Number </th>
+                <th> Departure City </th>
+                <th> Departure Date </th>
+                <th> Departure Time </th>
+                <th> Arrival City </th>
+                <th> Arrival Date </th>
+                <th> Arrival Time </th>
+            {% for flight in flights %}
+                <tr>
+                    <td>{{flight['flight_num']}}</td>
+                    <td>{{flight['depart_city']}}</td>
+                    <td>{{flight['depart_date']}}</td>
+                    <td>{{flight['depart_time']}}</td>
+                    <td>{{flight['arrival_city']}}</td>
+                    <td>{{flight['arrival_date']}}</td>
+                    <td>{{flight['arrival_time']}}</td>
+                </tr>    
+            {% endfor %}
+            {% endif %}
+            </table>
+        </div>
     </body>
 </html>
