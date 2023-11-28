@@ -216,9 +216,33 @@ def staffHome():
     if staffData:
         cursor.execute(query, staffData['airline_name'])
         flights = cursor.fetchall()
-        return render_template('/staff/home.html', username=username, data=staffData, flights=flights)
+        return render_template('/staff/home.html', username=username, data=staffData, flights=flights, airports=getAirports(conn), search=True)
     
     return render_template('/staff/home.html', username=username, data=staffData)
+
+@app.route('/staffSearchFlights', methods=['GET', 'POST'])
+def staffSearchFlight():
+    cursor = conn.cursor()
+
+    username = session['username']
+    query = 'SELECT * FROM airline_staff WHERE username=%s'
+    cursor.execute(query, (username))
+
+    staffData = cursor.fetchone()
+
+    if staffData: airline_name = staffData['airline_name']
+    else: airline_name = ""
+
+    start_date = request.form['start']
+    end_date = request.form['end']
+    depart = request.form['departure_airport']
+    arrival = request.form['arrival_airport']
+
+    query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and airline_name = %s and T1.depart_date >= %s and T1.depart_date <= %s and T1.airport_city = %s and T2.airport_city = %s ORDER BY depart_date"
+    cursor.execute(query, (airline_name, start_date, end_date, depart, arrival))
+    flights = cursor.fetchall()
+
+    return render_template('/staff/home.html', flights=flights, airports=getAirports(conn), search=False)
 
 @app.route('/logout')
 def logout():

@@ -14,8 +14,39 @@
     </header>
 
     <body>
+        {% if search %}
         <p> Welcome {{data['first_name']}} {{data['last_name']}} </p>
 
+        <div>
+            <form class="search_bar" action="/staffSearchFlights" method="POST">
+                <label id="search_box"> Departure </label> 
+                <select name="departure_airport" required>
+                    <option value="" disabled selected> SELECT </option> 
+                    {% for airport in airports %}
+                    <option> {{airport['airport_city']}} </option> 
+                    {% endfor %}
+                </select>
+
+                <label id="search_box"> Arrival </label> 
+                <select name="arrival_airport" required> 
+                    <option value="" disabled selected> SELECT </option> 
+                    {% for airport in airports %}
+                    <option> {{airport['airport_city']}} </option> 
+                    {% endfor %}
+                </select>
+
+                <label id="search_box"> From </label>
+                <input type="date", name="start" required>
+
+                <label id="search_box"> To </label> <!-- add min date to previous field via JS -->
+                <input type="date", name="end">
+
+                <input type="submit" value = Search />
+            </form>
+            {% else %}
+                <a id="return" href="/staffHome"> Return to Homepage </a>
+            {% endif %}
+        </div>
         <div class="flights">
             {% if not flights %}
                 <p> No Flights </p>
