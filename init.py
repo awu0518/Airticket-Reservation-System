@@ -83,7 +83,7 @@ def loginStaff():
     
     if (data):
         session['username'] = username
-        return render_template("staff/home.html")
+        return redirect(url_for("staffHome"))
     else:
         return render_template("login/login.html", error = "Incorrect credentials")
     
@@ -96,7 +96,7 @@ def loginCustomer():
     password = password.hexdigest()
 
     cursor = conn.cursor()
-    query = "SELECT * FROM customer WHERE email = %s and password = %s"
+    query = "SELECT * FROM customer WHERE username = %s and password = %s"
     cursor.execute(query, (username, password))
 
     data = cursor.fetchone()
@@ -123,8 +123,6 @@ def customerRegistration():
     query = "SELECT * FROM customer WHERE email = %s"
     cursor.execute(query, email)
     data = cursor.fetchone()
-
-    print(data)
 
     if data is not None:
         return render_template("/login/customerReg.html", error="Account already associated with email, please login")
@@ -161,7 +159,37 @@ def customerRegistration():
 
 @app.route('/staffRegistration', methods=['GET', 'POST'])
 def staffReg():
-    return render_template("/login/staffReg.html", airlines=getAirlines(conn))
+    cursor = conn.cursor()
+    username = request.form['username']
+
+    query = "SELECT * FROM airline_staff WHERE username = %s"
+    cursor.execute(query, username)
+    data = cursor.fetchone()
+
+    if data is not None:
+        return render_template("/login/staffReg.html", error="Account already associated with username, please login", airlines=getAirlines(conn))
+    
+    password = request.form['password']
+    password = hashlib.md5(password.encode())
+    password = password.hexdigest()
+
+    airline = request.form['airline_name']
+    email = request.form['email']
+    f_name = request.form['first_name']
+    l_name = request.form['last_name']
+    phone = str(request.form['phone_number'])
+    dob = str(request.form['dob'])
+
+    query = "insert into airline_staff values (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (username, airline, password, f_name, l_name, dob))
+    query = "insert into email values (%s, %s, %s)"
+    cursor.execute(query, (username, airline, email))
+    query = "insert into staff_phone_number values (%s, %s, %s)"
+    cursor.execute(query, (username, airline, phone))
+
+    conn.commit()
+
+    return redirect(url_for("login"))
 
 @app.route('/custHome')
 def custHome():
@@ -172,6 +200,16 @@ def custHome():
     cursor.execute(query, (username))
 
     return render_template('/customer/home.html', username=username, data=cursor.fetchone())
+
+@app.route('/staffHome')
+def staffHome():
+    username = session['username']
+
+    cursor = conn.cursor()
+    query = 'SELECT * FROM airline_staff WHERE username=%s'
+    cursor.execute(query, (username))
+
+    return render_template('/staff/home.html', username=username, data=cursor.fetchone())
 
 @app.route('/logout')
 def logout():
