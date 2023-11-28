@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from helper import *
 import pymysql.cursors
+import hashlib
 
 app = Flask(__name__)
 
@@ -71,6 +72,9 @@ def loginStaff():
     username = request.form['username']
     password = request.form['password']
 
+    password = hashlib.md5(password.encode())
+    password = password.hexdigest()
+
     cursor = conn.cursor()
     query = "SELECT * FROM airline_staff WHERE username = %s and password = %s"
     cursor.execute(query, (username, password))
@@ -88,6 +92,9 @@ def loginCustomer():
     username = request.form['username']
     password = request.form['password']
 
+    password = hashlib.md5(password.encode())
+    password = password.hexdigest()
+
     cursor = conn.cursor()
     query = "SELECT * FROM customer WHERE email = %s and password = %s"
     cursor.execute(query, (username, password))
@@ -96,7 +103,7 @@ def loginCustomer():
     
     if (data):
         session['username'] = username
-        return render_template("customer/home.html")
+        return redirect(url_for("custHome"))
     else:
         return render_template("login/login.html", error = "Incorrect credentials")
 
@@ -106,11 +113,71 @@ def getCustReg():
 
 @app.route('/getStaffReg')
 def getStaffReg():
-    cursor = conn.cursor()
-    query = "SELECT airline_name FROM airline"
-    cursor.execute(query)
+    return render_template("/login/staffReg.html", airlines=getAirlines(conn))
 
-    return render_template("/login/staffReg.html", airlines=cursor.fetchall())
+@app.route('/customerRegistration', methods=['GET', 'POST'])
+def customerRegistration():
+    cursor = conn.cursor()
+    email = request.form['email']
+
+    query = "SELECT * FROM customer WHERE email = %s"
+    cursor.execute(query, email)
+    data = cursor.fetchone()
+
+    print(data)
+
+    if data is not None:
+        return render_template("/login/customerReg.html", error="Account already associated with email, please login")
+    
+    password = request.form['password']
+    password = hashlib.md5(password.encode())
+    password = password.hexdigest()
+
+    f_name = request.form['first_name']
+    l_name = request.form['last_name']
+    phone = str(request.form['phone_number'])
+    dob = str(request.form['dob'])
+
+    b_num = request.form['building_num']
+    street = request.form['street']
+    a_num = request.form['apartment_num']
+    city = request.form['city']
+    state = request.form['state']
+    zip = request.form['zip_code']
+
+    p_num = request.form['passport_num']
+    p_exp = str(request.form['passport_exp'])
+    p_country = request.form['passport_country']
+    
+    query = "insert into Customer values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (email, password, f_name, l_name, b_num, street, a_num,
+          city, state, zip, p_num, p_exp, p_country, dob))
+    query = "insert into Phone_Number values (%s, %s)"
+    cursor.execute(query, (email, phone))
+
+    conn.commit()
+
+    return redirect(url_for("login"))
+
+@app.route('/staffRegistration', methods=['GET', 'POST'])
+def staffReg():
+    return render_template("/login/staffReg.html", airlines=getAirlines(conn))
+
+@app.route('/custHome')
+def custHome():
+    username = session['username']
+
+    cursor = conn.cursor()
+    query = 'SELECT * FROM Customer WHERE email=%s'
+    cursor.execute(query, (username))
+
+    return render_template('/customer/home.html', username=username, data=cursor.fetchone())
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    return redirect('/')
+
 
 app.secret_key = 'some key that you will never guess'
 if __name__ == "__main__":

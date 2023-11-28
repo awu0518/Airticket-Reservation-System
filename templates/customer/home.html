@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+    </head>
+
+    <header>
+        <h1 id="header-text"> Wu Flights </h1>
+        <div class="login">
+            <a id="login-link" href="/custHome"> Main</a>
+            <a id="login-link" href="/logout"> Logout</a>
+        </div>
+    </header>
+
+    <body>
+        <p> Welcome {{data['first_name']}} {{data['last_name']}} </p>
+    </body>
+</html>
