@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+    </head>
+
+    <header>
+        <h1 id="header-text"> Wu Flights </h1>
+        <div class="login">
+            <a id="login-link" href="/staffHome"> Main</a>
+            <a id="login-link" href="/logout"> Logout</a>
+        </div>
+    </header>
+
+    <body>
+        <hl> Customers on Flight {{flight}} </hl>
+
+        {% if not data %}
+            <p> No customers </p>
+        {% else %}
+            <table>
+                <th> Name</th>
+                {% for customer in data %}
+                <tr>
+                    <td> {{customer['cust_first_name']}} {{customer['cust_last_name']}} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+
+        <a id="return" href="/staffHome"> Return to Homepage </a>
+    </body>
+</html>

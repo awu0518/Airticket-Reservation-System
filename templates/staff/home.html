@@ -59,6 +59,7 @@
                 <th> Arrival City </th>
                 <th> Arrival Date </th>
                 <th> Arrival Time </th>
+                <th> Get Customers </th>
             {% for flight in flights %}
                 <tr>
                     <td>{{flight['flight_num']}}</td>
@@ -68,6 +69,12 @@
                     <td>{{flight['arrival_city']}}</td>
                     <td>{{flight['arrival_date']}}</td>
                     <td>{{flight['arrival_time']}}</td>
+                    <td> 
+                        <form class="search_bar" action="/getCustomersFromFlight" method="POST">
+                            <input type="hidden" name="flight_num" value={{flight['flight_num']}}>
+                            <input type="submit" value = OPEN />
+                        </form>
+                    </td>
                 </tr>    
             {% endfor %}
             {% endif %}

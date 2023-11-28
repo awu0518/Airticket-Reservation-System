@@ -244,6 +244,20 @@ def staffSearchFlight():
 
     return render_template('/staff/home.html', flights=flights, airports=getAirports(conn), search=False)
 
+@app.route('/getCustomersFromFlight', methods=['GET', 'POST'])
+def getCustomersFromFlight():
+    flight = request.form['flight_num']
+
+    cursor = conn.cursor()
+
+    query = "SELECT cust_first_name, cust_last_name FROM ticket WHERE flight_num = %s"
+    cursor.execute(query, flight)
+    data = cursor.fetchall()
+
+    print(data)
+
+    return render_template('/staff/flightInfo.html', flight=flight, data=data)
+
 @app.route('/logout')
 def logout():
     session.pop('username')
