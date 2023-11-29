@@ -8,3 +8,4 @@ def getAirlines(conn):
     cursor.execute("SELECT airline_name FROM airline")
     return cursor.fetchall()
 
+

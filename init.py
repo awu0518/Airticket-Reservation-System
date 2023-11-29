@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from helper import *
+from datetime import date
 import pymysql.cursors
 import hashlib
 
@@ -250,13 +251,19 @@ def getCustomersFromFlight():
 
     cursor = conn.cursor()
 
-    query = "SELECT cust_first_name, cust_last_name FROM ticket WHERE flight_num = %s"
+    query = "SELECT * FROM ticket natural left outer join review WHERE flight_num = %s"
     cursor.execute(query, flight)
     data = cursor.fetchall()
 
-    print(data)
+    query = "SELECT avg(rating) as avg FROM ticket natural left outer join review WHERE flight_num = %s"
+    cursor.execute(query, int(flight))
+    avgRating = cursor.fetchone()
 
-    return render_template('/staff/flightInfo.html', flight=flight, data=data)
+    return render_template('/staff/flightInfo.html', flight=flight, data=data, avgRating=avgRating)
+
+@app.route('/flightManager')
+def flightManager():
+    return render_template('/staff/flightManager.html')
 
 @app.route('/logout')
 def logout():
