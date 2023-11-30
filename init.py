@@ -259,6 +259,13 @@ def flightManager():
 
     return render_template('/staff/flightManager.html', airplanes=airplanes, flights=flights, airports=airports)
 
+@app.route('/customerInfo')
+def customerInfo():
+    username = session['username']
+    customers = getCustomers(conn, getAirlineFromStaff(conn, username))
+
+    return render_template('/staff/customers.html', customers=customers)
+
 @app.route('/logout')
 def logout():
     session.pop('username')

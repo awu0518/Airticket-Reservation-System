@@ -29,5 +29,10 @@ def getAirlineFromStaff(conn, username):
     if staffData: return staffData['airline_name']
     else: return ""
 
+def getCustomers(conn, airline):
+    cursor = conn.cursor()
+    query = 'SELECT first_name, last_name, email, emails FROM customer NATURAL JOIN (SELECT cust_email as email, Count(cust_email) as emails FROM ticket WHERE airline_name = %s GROUP BY cust_email) as emails ORDER BY emails DESC'
+    cursor.execute(query, airline)
+    return cursor.fetchall()
 
 

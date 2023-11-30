@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/reg.css') }}">
+    </head>
+    
+    <header>
+        <h1 id="header-text"> Wu Flights </h1>
+        <div class="login">
+            <a id="login-link" href="/staffHome"> Main</a>
+            <a id="login-link" href="/logout"> Logout</a>
+        </div>
+    </header>
+
+    <body>
+        <p> Last Month Revenue: </p>
+        <p> Last Year Revenue: </p>
+
+        <table>
+            {% if not customers %}
+                <th> No Customers </th>
+            {% else %}
+                <th> Name </th>
+                <th> Get Flights </th>
+                {% for customer in customers %}
+                    <tr>
+                        <td>{{customer['first_name']}} {{customer['last_name']}}</td>
+                        <td> 
+                            <form class="search_bar" action="/getFlightsFromCustomer" method="POST">
+                                <input type="hidden" name="flight_num" value={{customer['email']}}>
+                                <input type="submit" value = OPEN />
+                            </form>
+                        </td>
+                    </tr>    
+                {% endfor %}
+            {% endif %}
+        </table>
+
+        <a id="return" href="/staffHome"> Return to Homepage </a>
+    </body>
+
+    <footer> </footer>
+</html>
