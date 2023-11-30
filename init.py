@@ -259,6 +259,19 @@ def flightManager():
 
     return render_template('/staff/flightManager.html', airplanes=airplanes, flights=flights, airports=airports)
 
+@app.route('/changeStatus', methods=['GET', 'POST'])
+def changeStatus():
+    cursor = conn.cursor()
+    flight_id = request.form['flight_id']
+    status = request.form['status']
+
+    query = "UPDATE flight SET status = %s WHERE flight_num = %s"
+    cursor.execute(query, (status, flight_id))
+    conn.commit()
+
+    return redirect(url_for("staffHome"))
+
+
 @app.route('/customerInfo')
 def customerInfo():
     username = session['username']

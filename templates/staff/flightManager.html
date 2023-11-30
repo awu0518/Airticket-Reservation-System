@@ -116,6 +116,27 @@
             <input type="submit" value = Submit />    
         </form>
 
+        <table>
+            {% if not airplanes %}
+                <th> No Airplanes </th>
+            {% else %}
+                <th> Airplane ID </th>
+                <th> Number of Seats </th>
+                <th> Maintenance </th>
+                {% for airplane in airplanes %}
+                    <tr>
+                        <td> {{airplane['airplane_id']}} </td>
+                        <td> {{airplane['num_seats']}} </td>
+                        {% if airplane['start_date'] == None %}
+                            <td> No Maintenance Scheduled </td>
+                        {% else %}
+                            <td>{{airplane['start_date']}}: {{airplane['start_time']}} to {{airplane['end_date']}}: {{airplane['end_time']}}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+
         <p> Add Airplane </p>
         <form class="search_bar" action="/addAirplane" method="POST"> 
             <label id="search_box"> Airplane ID </label>

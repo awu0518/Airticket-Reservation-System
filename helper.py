@@ -10,7 +10,7 @@ def getAirlines(conn):
 
 def getAirplanesForAirline(conn, airline):
     cursor = conn.cursor()
-    cursor.execute("SELECT airplane_id FROM airplane WHERE airline_name=%s", airline)
+    cursor.execute("SELECT * FROM airplane natural left outer join maintenance WHERE airline_name=%s", airline)
     return cursor.fetchall()
 
 def getFlightsForAirline(conn, airline):
