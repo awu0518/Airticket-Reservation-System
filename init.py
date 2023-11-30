@@ -259,6 +259,12 @@ def flightManager():
 
     return render_template('/staff/flightManager.html', airplanes=airplanes, flights=flights, airports=airports)
 
+@app.route('/flightStatusPage')
+def flightStatusPage():
+    airline = getAirlineFromStaff(conn, session['username'])
+    flights = getFlightsForAirline(conn, airline)
+    return render_template('/staff/flightManagerPages/changeFlightStatus.html', flights=flights)
+
 @app.route('/changeStatus', methods=['GET', 'POST'])
 def changeStatus():
     cursor = conn.cursor()
@@ -271,12 +277,6 @@ def changeStatus():
 
     return redirect(url_for("flightManager"))
 
-@app.route('/flightStatusPage')
-def flightStatusPage():
-    airline = getAirlineFromStaff(conn, session['username'])
-    flights = getFlightsForAirline(conn, airline)
-    return render_template('/staff/flightManagerPages/changeFlightStatus.html', flights=flights)
-
 @app.route('/addFlightPage')
 def addFlightPage():
     airline = getAirlineFromStaff(conn, session['username'])
@@ -287,16 +287,6 @@ def addFlightPage():
 @app.route('/addAirportPage')
 def addAirportPage():
     return render_template('/staff/flightManagerPages/addAirport.html')
-
-@app.route('/addAirplanePage')
-def addAirplanePage():
-    return render_template('/staff/flightManagerPages/addAirplane.html')
-
-@app.route('/scheduleMaintenancePage')
-def scheduleMaintanencePage():
-    airline = getAirlineFromStaff(conn, session['username'])
-    airplanes = getAirplanesForAirline(conn, airline)
-    return render_template('/staff/flightManagerPages/scheduleMaintenance.html', airplanes=airplanes)
 
 @app.route('/addAirport', methods=['GET', 'POST'])
 def addAirport():
@@ -311,6 +301,51 @@ def addAirport():
         return render_template('/staff/flightManagerPages/addAirport.html', error="Airport Code Already Used")
     
     return redirect(url_for("flightManager"))
+
+@app.route('/addAirplanePage')
+def addAirplanePage():
+    return render_template('/staff/flightManagerPages/addAirplane.html')
+
+@app.route('/addAirplane', methods=['GET', 'POST'])
+def addAirplane():
+    cursor = conn.cursor()
+    airplane_id = request.form['id']
+
+    query = "SELECT airplane_id FROM airplane WHERE airplane_id=%s"
+    cursor.execute(query, airplane_id)
+    exist = cursor.fetchone()
+
+    if exist:
+        return render_template('/staff/flightManagerPages/addAirplane.html', error="Airplane ID Already Used")
+    
+    return redirect(url_for("flightManager"))
+
+
+@app.route('/scheduleMaintenancePage')
+def scheduleMaintanencePage():
+    airline = getAirlineFromStaff(conn, session['username'])
+    airplanes = getAirplanesForAirline(conn, airline)
+    return render_template('/staff/flightManagerPages/scheduleMaintenance.html', airplanes=airplanes)
+
+@app.route('/scheduleMaintenance', methods=['GET', 'POST'])
+def scheduleMaintanence():
+    cursor = conn.cursor()
+    airline = getAirlineFromStaff(conn, session['username'])
+
+    airplane_id = request.form['airplane_id']
+    start_date = request.form['start_date']
+    start_time = request.form['start_time']
+    end_date = request.form['end_date']
+    end_time = request.form['end_time']
+
+    # add check for flights scheduled during maintenance time
+
+    query = "insert into maintenance values (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (airline, airplane_id, start_date, start_time, end_date, end_time))
+    conn.commit()
+
+    return redirect(url_for("flightManager"))
+
 
 @app.route('/customerInfo')
 def customerInfo():
