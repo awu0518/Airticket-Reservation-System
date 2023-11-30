@@ -308,7 +308,7 @@ def addAirport():
     exist = cursor.fetchone()
 
     if exist:
-        return redirect(url_for("flightManager", error="Airport Code already Exists"))
+        return render_template('/staff/flightManagerPages/addAirport.html', error="Airport Code Already Used")
     
     return redirect(url_for("flightManager"))
 

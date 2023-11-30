@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf8">
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/reg.css') }}">
     </head>
 
     <header>
@@ -14,6 +15,10 @@
     </header>
 
     <body>
+        {% if error %}
+		    <p class="error"><strong>Error:</strong> {{error}}</p>
+	    {% endif %}
+
         <form class="search_bar" action="/addAirport" method="POST"> 
             <label id="search_box"> Airport Code </label>
             <input type="number" name="code" required> <br \>
@@ -41,7 +46,7 @@
             <input type="submit" value = Submit />    
         </form>
 
-        <a id="return" href="/flightManager"> Return to Homepage </a>
+        <a id="return" href="/flightManager"> Return to Flight Manager </a>
     </body>
 
     <footer> </footer>
