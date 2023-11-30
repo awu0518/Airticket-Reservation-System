@@ -273,11 +273,16 @@ def changeStatus():
 
 @app.route('/flightStatusPage')
 def flightStatusPage():
-    return render_template('/staff/flightManagerPages/changeFlightStatus.html')
+    airline = getAirlineFromStaff(conn, session['username'])
+    flights = getFlightsForAirline(conn, airline)
+    return render_template('/staff/flightManagerPages/changeFlightStatus.html', flights=flights)
 
 @app.route('/addFlightPage')
 def addFlightPage():
-    return render_template('/staff/flightManagerPages/addFlight.html')
+    airline = getAirlineFromStaff(conn, session['username'])
+    airports = getAirports(conn)
+    airplanes = getAirplanesForAirline(conn, airline)
+    return render_template('/staff/flightManagerPages/addFlight.html', airports=airports, airplanes=airplanes)
 
 @app.route('/addAirportPage')
 def addAirportPage():
@@ -289,7 +294,9 @@ def addAirplanePage():
 
 @app.route('/scheduleMaintenancePage')
 def scheduleMaintanencePage():
-    return render_template('/staff/flightManagerPages/scheduleMaintenance.html')
+    airline = getAirlineFromStaff(conn, session['username'])
+    airplanes = getAirplanesForAirline(conn, airline)
+    return render_template('/staff/flightManagerPages/scheduleMaintenance.html', airplanes=airplanes)
 
 @app.route('/addAirport', methods=['GET', 'POST'])
 def addAirport():
