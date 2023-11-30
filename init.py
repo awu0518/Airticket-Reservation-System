@@ -300,6 +300,16 @@ def addAirport():
     if exist:
         return render_template('/staff/flightManagerPages/addAirport.html', error="Airport Code Already Used")
     
+    name = request.form['name']
+    city = request.form['city']
+    country = request.form['country']
+    num_terminals = request.form['num_terminals']
+    airport_type = request.form['airport_type']
+
+    query = "insert into airport values (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (airport_code, name, city, country, num_terminals, airport_type))
+    conn.commit()
+
     return redirect(url_for("flightManager"))
 
 @app.route('/addAirplanePage')
@@ -318,6 +328,16 @@ def addAirplane():
     if exist:
         return render_template('/staff/flightManagerPages/addAirplane.html', error="Airplane ID Already Used")
     
+    airline = getAirlineFromStaff(conn, session['username'])
+    num_seats = request.form['num_seats']
+    manufacturer = request.form['manufacturer']
+    model_num = request.form['model_num']
+    manufact_date = request.form['manufact_date']
+
+    query = "insert into airplane values (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (airline, airplane_id, num_seats, manufacturer, model_num, manufact_date))
+    conn.commit()
+
     return redirect(url_for("flightManager"))
 
 
