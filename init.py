@@ -269,8 +269,41 @@ def changeStatus():
     cursor.execute(query, (status, flight_id))
     conn.commit()
 
-    return redirect(url_for("staffHome"))
+    return redirect(url_for("flightManager"))
 
+@app.route('/flightStatusPage')
+def flightStatusPage():
+    return render_template('/staff/flightManagerPages/changeFlightStatus.html')
+
+@app.route('/addFlightPage')
+def addFlightPage():
+    return render_template('/staff/flightManagerPages/addFlight.html')
+
+@app.route('/addAirportPage')
+def addAirportPage():
+    return render_template('/staff/flightManagerPages/addAirport.html')
+
+@app.route('/addAirplanePage')
+def addAirplanePage():
+    return render_template('/staff/flightManagerPages/addAirplane.html')
+
+@app.route('/scheduleMaintenancePage')
+def scheduleMaintanencePage():
+    return render_template('/staff/flightManagerPages/scheduleMaintenance.html')
+
+@app.route('/addAirport', methods=['GET', 'POST'])
+def addAirport():
+    cursor = conn.cursor()
+    airport_code = request.form['code']
+
+    query = "SELECT airport_code FROM airport WHERE airport_code=%s"
+    cursor.execute(query, airport_code)
+    exist = cursor.fetchone()
+
+    if exist:
+        return redirect(url_for("flightManager", error="Airport Code already Exists"))
+    
+    return redirect(url_for("flightManager"))
 
 @app.route('/customerInfo')
 def customerInfo():

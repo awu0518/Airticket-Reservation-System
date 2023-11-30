@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+    </head>
+
+    <header>
+        <h1 id="header-text"> Wu Flights </h1>
+        <div class="login">
+            <a id="login-link" href="/staffHome"> Main</a>
+            <a id="login-link" href="/logout"> Logout</a>
+        </div>
+    </header>
+
+    <body>
+        <form class="search_bar" action="/scheduleMaintenance" method="POST"> 
+            <label id="search_box"> Airplane ID </label> 
+            <select name="airplane_id" required> 
+                <option value="" disabled selected> SELECT </option> 
+                {% for airplane in airplanes %}
+                    <option> {{airplane['airplane_id']}} </option> 
+                {% endfor %}
+            </select> <br \>
+
+            <label id="search_box"> Start Date </label>
+            <input type="date" name="start_date" required> 
+
+            <label id="search_box"> Start Time </label>
+            <input type="time" name="start_time" required> <br \>
+
+            <label id="search_box"> End Date </label>
+            <input type="date" name="end_date" required> 
+
+            <label id="search_box"> End Time </label>
+            <input type="time" name="end_time" required>
+
+            <input type="submit" value = Submit />    
+        </form>
+
+        <a id="return" href="/flightManager"> Return to Homepage </a>
+    </body>
+
+    <footer> </footer>
+</html>
