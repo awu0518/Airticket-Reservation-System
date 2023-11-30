@@ -213,7 +213,7 @@ def staffHome():
     staffData = cursor.fetchone()
 
     flights = getFlightsForAirline(conn, getAirlineFromStaff(conn, username))
-    
+
     return render_template('/staff/home.html', username=username, data=staffData, flights=flights, airports=getAirports(conn), search=True)
     
 @app.route('/staffSearchFlights', methods=['GET', 'POST'])
@@ -255,8 +255,9 @@ def flightManager():
     airline = getAirlineFromStaff(conn, username)
     airplanes = getAirplanesForAirline(conn, airline)
     flights = getFlightsForAirline(conn, airline)
+    airports = getAirports(conn)
 
-    return render_template('/staff/flightManager.html', airplanes=airplanes, flights=flights)
+    return render_template('/staff/flightManager.html', airplanes=airplanes, flights=flights, airports=airports)
 
 @app.route('/logout')
 def logout():
