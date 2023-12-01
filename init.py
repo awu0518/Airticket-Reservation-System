@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from helper import *
-from datetime import date
+import datetime
+from dateutil.relativedelta import relativedelta
 import pymysql.cursors
 import hashlib
 
@@ -396,10 +397,35 @@ def scheduleMaintanence():
 
 @app.route('/customerInfo')
 def customerInfo():
+    cursor = conn.cursor()
     username = session['username']
-    customers = getCustomers(conn, getAirlineFromStaff(conn, username))
+    airline = getAirlineFromStaff(conn, username)
+    customers = getCustomers(conn, airline)
 
-    return render_template('/staff/customers.html', customers=customers)
+    today = datetime.date.today()
+    last_month = today- relativedelta(months=1)
+    last_year = today - relativedelta(years=1)
+    
+    query = "select SUM(cost) as month from ticket where airline_name = %s and purchase_date <= %s and purchase_date >= %s"
+    cursor.execute(query, (airline, today, last_month))
+    month_profit = cursor.fetchone()
+
+    query = "select SUM(cost) as year from ticket where airline_name = %s and purchase_date <= %s and purchase_date >= %s"
+    cursor.execute(query, (airline, today, last_year))
+    year_profit = cursor.fetchone()
+
+    return render_template('/staff/customers.html', customers=customers, month_profit=month_profit, year_profit=year_profit)
+
+@app.route('/getFlightsFromCustomer', methods=['GET', 'POST'])
+def getFlightsFromCustomer():
+    cursor = conn.cursor()
+    cust_email = request.form['cust_email']
+
+    query = "SELECT flight_num, COUNT(flight_num) as num_tickets FROM ticket WHERE cust_email=%s GROUP BY flight_num"
+    cursor.execute(query, (cust_email))
+    flights = cursor.fetchall()
+    
+    return render_template('/staff/customerFlights.html', flights=flights, cust_email=cust_email)
 
 @app.route('/logout')
 def logout():

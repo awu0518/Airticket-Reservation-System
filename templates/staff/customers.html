@@ -15,8 +15,8 @@
     </header>
 
     <body>
-        <p> Last Month Revenue: </p>
-        <p> Last Year Revenue: </p>
+        <p> Last Month Revenue: {{month_profit['month']}}</p>
+        <p> Last Year Revenue: {{year_profit['year']}}</p>
 
         <table>
             {% if not customers %}
@@ -29,7 +29,7 @@
                         <td>{{customer['first_name']}} {{customer['last_name']}}</td>
                         <td> 
                             <form class="search_bar" action="/getFlightsFromCustomer" method="POST">
-                                <input type="hidden" name="flight_num" value={{customer['email']}}>
+                                <input type="hidden" name="cust_email" value={{customer['email']}}>
                                 <input type="submit" value = OPEN />
                             </form>
                         </td>
