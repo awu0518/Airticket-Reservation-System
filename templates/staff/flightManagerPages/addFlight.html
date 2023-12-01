@@ -38,7 +38,7 @@
             <select name="depart_airport" required>
                 <option value="" disabled selected> SELECT </option> 
                 {% for airport in airports %}
-                    <option value=airport['airport_code']> {{airport['airport_name']}} </option> 
+                    <option value={{airport['airport_code']}}> {{airport['airport_code']}}: {{airport['airport_name']}} </option> 
                 {% endfor %}
             </select> 
 
@@ -52,7 +52,7 @@
             <select name="arrival_airport" required>
                 <option value="" disabled selected> SELECT </option> 
                 {% for airport in airports %}
-                    <option value=airport['airport_code']> {{airport['airport_name']}} </option> 
+                    <option value={{airport['airport_code']}}> {{airport['airport_code']}}: {{airport['airport_name']}} </option> 
                 {% endfor %}
             </select> 
 

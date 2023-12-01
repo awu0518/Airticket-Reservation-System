@@ -284,6 +284,33 @@ def addFlightPage():
     airplanes = getAirplanesForAirline(conn, airline)
     return render_template('/staff/flightManagerPages/addFlight.html', airports=airports, airplanes=airplanes)
 
+@app.route('/addFlight', methods=['GET', 'POST'])
+def addFlight():
+    cursor = conn.cursor()
+
+    airline = getAirlineFromStaff(conn, session['username'])
+    airplane_id = request.form['airplane_id']
+    flight_id = request.form['flight_id']
+    price = request.form['price']
+    depart_airport = request.form['depart_airport']
+    depart_date = request.form['depart_date']
+    depart_time = request.form['depart_time']
+    arrival_airport = request.form['arrival_airport']
+    arrival_date = request.form['arrival_date']
+    arrival_time = request.form['arrival_time']
+
+    # add checks for flight insertion
+
+    print(airline, airplane_id, flight_id, depart_airport, depart_date, depart_time,
+                           arrival_airport, arrival_date, arrival_time, price)
+    
+    query = "insert into flight values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (airline, airplane_id, flight_id, depart_airport, depart_date, depart_time,
+                           arrival_airport, arrival_date, arrival_time, price, "ontime"))
+    conn.commit()
+
+    return redirect(url_for("flightManager"))
+
 @app.route('/addAirportPage')
 def addAirportPage():
     return render_template('/staff/flightManagerPages/addAirport.html')
