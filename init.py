@@ -423,12 +423,22 @@ def customerRegistration():
 @app.route('/custHome')
 def custHome():
     username = session['username']
-
+    today = datetime.date.today()
     cursor = conn.cursor()
-    query = 'SELECT * FROM Customer WHERE email=%s'
-    cursor.execute(query, (username))
 
-    return render_template('/customer/home.html', username=username, data=cursor.fetchone())
+    query = "SELECT * FROM Customer WHERE email=%s"
+    cursor.execute(query, (username))
+    data = cursor.fetchone()
+
+    query = "SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num) as flights natural join (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date >= %s) as tickets"
+    cursor.execute(query, (username, today))
+    future_flights = cursor.fetchall()
+
+    query = "SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num) as flights natural join (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date < %s) as tickets"
+    cursor.execute(query, (username, today))
+    past_flights = cursor.fetchall()
+
+    return render_template('/customer/home.html', data=data, future_flights=future_flights, past_flights=past_flights)
 
 @app.route('/logout')
 def logout():

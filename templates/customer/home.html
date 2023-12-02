@@ -15,6 +15,64 @@
 
     <body>
         <p> Welcome {{data['first_name']}} {{data['last_name']}} </p>
+
+        <p> View / Purchase Flights </p>
+        <p> Spending </p>
+
+        <p> Upcoming Flights </p>
+        <table>
+            {% if not future_flights %}
+                <th> No Flights </th>
+            {% else %}
+                <th> Flight Number </th>
+                <th> Departure City </th>
+                <th> Departure Date </th>
+                <th> Departure Time </th>
+                <th> Arrival City </th>
+                <th> Arrival Date </th>
+                <th> Arrival Time </th>
+                <th> Status </th>
+                {% for flight in future_flights %}
+                    <tr>
+                        <td>{{flight['flight_num']}}</td>
+                        <td>{{flight['depart_city']}}</td>
+                        <td>{{flight['depart_date']}}</td>
+                        <td>{{flight['depart_time']}}</td>
+                        <td>{{flight['arrival_city']}}</td>
+                        <td>{{flight['arrival_date']}}</td>
+                        <td>{{flight['arrival_time']}}</td>
+                        <td>{{flight['status']}}</td>
+                    </tr>    
+                {% endfor %}
+            {% endif %}
+        </table>
+        
+        <p> Past Flights </p>
+        <table>
+            {% if not past_flights %}
+                <th> No Flights </th>
+            {% else %}
+                <th> Flight Number </th>
+                <th> Departure City </th>
+                <th> Departure Date </th>
+                <th> Departure Time </th>
+                <th> Arrival City </th>
+                <th> Arrival Date </th>
+                <th> Arrival Time </th>
+                {% for flight in past_flights %}
+                    <tr>
+                        <td>{{flight['flight_num']}}</td>
+                        <td>{{flight['depart_city']}}</td>
+                        <td>{{flight['depart_date']}}</td>
+                        <td>{{flight['depart_time']}}</td>
+                        <td>{{flight['arrival_city']}}</td>
+                        <td>{{flight['arrival_date']}}</td>
+                        <td>{{flight['arrival_time']}}</td>
+                    </tr>    
+                {% endfor %}
+            {% endif %}
+        </table>
+
     </body>
 
     <footer> </footer>
