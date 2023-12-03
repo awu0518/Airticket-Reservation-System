@@ -19,7 +19,13 @@ conn = pymysql.connect(host='localhost',
 @app.route('/')
 def root():
     cursor = conn.cursor()
-    query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and T1.depart_date >= CAST(CURRENT_DATE() as Date) ORDER BY depart_date"
+
+    query = """
+    SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+         (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+    WHERE T1.flight_num = T2.flight_num and T1.depart_date >= CAST(CURRENT_DATE() as Date) ORDER BY depart_date"""
+
     cursor.execute(query)
     flights = cursor.fetchall()
     return render_template("index.html", airlines = getAirlines(conn), 
@@ -34,12 +40,22 @@ def searchFlight():
     depart_date = str(request.form['departure_date'])
     return_date = str(request.form['return_date'])
 
-    query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and depart_date = %s"
+    query = """
+    SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+         (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+    WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and depart_date = %s"""
+
     cursor.execute(query, (depart_from, arrive_to, depart_date))
     depart_flights = cursor.fetchall()
 
     if return_date:
-        query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and depart_date = %s"
+        query = """
+        SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+        FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+             (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+        WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and depart_date = %s"""
+
         cursor.execute(query, (arrive_to, depart_from, return_date))
         return_flights = cursor.fetchall()
         return render_template("index.html", airlines = getAirlines(conn), airports=getAirports(conn), 
@@ -56,7 +72,12 @@ def checkStatus():
     flight_id = str(request.form['flight_id'])
     depart_date = str(request.form['departure_date'])
 
-    query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and T1.airline_name = %s and T1.flight_num = %s and depart_date = %s"
+    query = """
+    SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+    (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+    WHERE T1.flight_num = T2.flight_num and T1.airline_name = %s and T1.flight_num = %s and depart_date = %s"""
+
     cursor.execute(query, (airline_name, flight_id, depart_date))
     result = cursor.fetchone()
 
@@ -154,7 +175,12 @@ def staffSearchFlight():
     depart = request.form['departure_airport']
     arrival = request.form['arrival_airport']
 
-    query = "SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num and airline_name = %s and T1.depart_date >= %s and T1.depart_date <= %s and T1.airport_city = %s and T2.airport_city = %s ORDER BY depart_date"
+    query = """
+    SELECT airline_name, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+         (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+    WHERE T1.flight_num = T2.flight_num and airline_name = %s and T1.depart_date >= %s and T1.depart_date <= %s and T1.airport_city = %s and T2.airport_city = %s ORDER BY depart_date"""
+    
     cursor.execute(query, (getAirlineFromStaff(conn, username), start_date, end_date, depart, arrival))
     flights = cursor.fetchall()
 
@@ -430,11 +456,28 @@ def custHome():
     cursor.execute(query, (username))
     data = cursor.fetchone()
 
-    query = "SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num) as flights natural join (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date >= %s) as tickets"
+    query = """
+    SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+         (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
+         WHERE T1.flight_num = T2.flight_num) as flights 
+         
+         natural join 
+         
+         (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date >= %s) as tickets"""
+    
     cursor.execute(query, (username, today))
     future_flights = cursor.fetchall()
 
-    query = "SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num) as flights natural join (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date < %s) as tickets"
+    query = """
+    SELECT * FROM (SELECT T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+    FROM (SELECT flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
+         (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 WHERE T1.flight_num = T2.flight_num) as flights 
+         
+         natural join 
+         
+         (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date < %s) as tickets"""
+    
     cursor.execute(query, (username, today))
     past_flights = cursor.fetchall()
 
