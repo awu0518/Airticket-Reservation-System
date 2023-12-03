@@ -440,6 +440,123 @@ def custHome():
 
     return render_template('/customer/home.html', data=data, future_flights=future_flights, past_flights=past_flights)
 
+@app.route('/getFlights')
+def getFlights():
+    cursor = conn.cursor()
+
+    query = """
+    SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+    FROM 
+
+    (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
+    FROM 
+        (SELECT airline_name, airplane_id, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+        FROM 
+            (SELECT airline_name, airplane_id, flight_num, airport_city, depart_date, depart_time, base_price, status 
+            FROM flight, airport WHERE depart_from = airport_code) as T1, 
+            (SELECT flight_num, airport_city, arrival_date, arrival_time 
+            FROM flight, airport where arrive_at = airport_code) as T2 
+        WHERE T1.flight_num = T2.flight_num and T1.depart_date >= CAST(CURRENT_DATE() as Date) ORDER BY depart_date) as flights natural join airplane) as flights2
+
+    natural left outer join
+
+    (SELECT flight_num, COUNT(flight_num) as numTickets
+    FROM ticket
+    GROUP BY flight_num) as tickets
+    """
+
+    cursor.execute(query)
+    flights = cursor.fetchall()
+    return render_template('/customer/tickets.html', today=datetime.date.today(), airlines = getAirlines(conn), 
+                           airports=getAirports(conn), flights=flights, search=True)
+
+@app.route('/searchFlightsCust', methods=['GET', 'POST'])
+def searchFlightsCust():
+    cursor = conn.cursor()
+
+    depart_from = request.form['departure_airport']
+    arrive_to = request.form['arrival_airport']
+    depart_date = str(request.form['departure_date'])
+    return_date = str(request.form['return_date'])
+
+    query = """
+    SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+    FROM 
+
+    (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
+    FROM 
+        (SELECT airline_name, airplane_id, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+        FROM 
+            (SELECT airline_name, airplane_id, flight_num, airport_city, depart_date, depart_time, base_price, status 
+            FROM flight, airport WHERE depart_from = airport_code) as T1, 
+            (SELECT flight_num, airport_city, arrival_date, arrival_time 
+            FROM flight, airport where arrive_at = airport_code) as T2 
+        WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and T1.depart_date = %s ORDER BY depart_date) as flights natural join airplane) as flights2
+
+    natural left outer join
+
+    (SELECT flight_num, COUNT(flight_num) as numTickets
+    FROM ticket
+    GROUP BY flight_num) as tickets
+    """
+
+    cursor.execute(query, (depart_from, arrive_to, depart_date))
+    flights = cursor.fetchall()
+
+    if not return_date:
+        return render_template('/customer/tickets.html', today=datetime.date.today(), airlines = getAirlines(conn), 
+                           airports=getAirports(conn), flights=flights, search=False)
+    else:
+        return render_template('/customer/tickets.html', today=datetime.date.today(), airlines = getAirlines(conn), 
+                           airports=getAirports(conn), flights=flights, search=False, depart_from=depart_from, arrive_to=arrive_to, return_date=return_date)
+        
+@app.route('/purchaseTwoWay', methods=['GET', 'POST'])
+def purchaseTwoWay():
+    cursor = conn.cursor()
+
+    first_flight = request.form['first_flight']
+    depart_from = request.form['departure_airport']
+    arrive_to = request.form['arrival_airport']
+    depart_date = str(request.form['departure_date'])
+
+    query = """
+    SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+    FROM 
+
+    (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
+    FROM 
+        (SELECT airline_name, airplane_id, T1.flight_num, T1.airport_city as depart_city, depart_date, depart_time, T2.airport_city as arrival_city, arrival_date, arrival_time, base_price, status 
+        FROM 
+            (SELECT airline_name, airplane_id, flight_num, airport_city, depart_date, depart_time, base_price, status 
+            FROM flight, airport WHERE depart_from = airport_code) as T1, 
+            (SELECT flight_num, airport_city, arrival_date, arrival_time 
+            FROM flight, airport where arrive_at = airport_code) as T2 
+        WHERE T1.flight_num = T2.flight_num and T1.airport_city = %s and T2.airport_city = %s and T1.depart_date = %s ORDER BY depart_date) as flights natural join airplane) as flights2
+
+    natural left outer join
+
+    (SELECT flight_num, COUNT(flight_num) as numTickets
+    FROM ticket
+    GROUP BY flight_num) as tickets
+    """
+
+    cursor.execute(query, (depart_from, arrive_to, depart_date))
+    flights = cursor.fetchall()
+
+    return render_template('/customer/tickets.html', today=datetime.date.today(), airlines = getAirlines(conn), 
+                           airports=getAirports(conn), flights=flights, first_flight = first_flight, search=False)
+ 
+@app.route('/purchaseOneWay', methods=['GET', 'POST'])
+def purchaseOneWay():
+    first_flight = request.form['first_flight']
+    flight_num = request.form['flight_num']
+
+    print(first_flight, flight_num)
+    return render_template('/customer/purchase.html')
+
 @app.route('/logout')
 def logout():
     session.pop('username')
