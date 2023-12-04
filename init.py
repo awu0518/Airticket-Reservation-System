@@ -751,10 +751,52 @@ def getSpending():
     else:
         total = 0
 
-    return render_template('/customer/spending.html', purchases=purchases, total=total, 
+    return render_template('/customer/spending.html', total=total, 
                            purchase_months = purchase_months, purchase_amounts=list(purchase_amounts.values()), 
-                           start_range=last_year, end_range=datetime.datetime.date(today))
+                           start_range=last_year, end_range=datetime.datetime.date(today), search=True)
 
+@app.route('/getSpendingRange', methods=['GET', 'POST'])
+def getSpendingRange(): # unable to span multiple years
+    cursor = conn.cursor()
+    email = session['username']
+
+    query = "SELECT cost, purchase_date FROM ticket WHERE cust_email=%s ORDER BY purchase_date DESC"
+    cursor.execute(query, email)
+    purchases = cursor.fetchall()
+
+    start_range = datetime.datetime.strptime(request.form['start_range'], '%Y-%m-%d')
+    end_range = datetime.datetime.strptime(request.form['end_range'], '%Y-%m-%d')
+
+    start_range = datetime.datetime.date(start_range)
+    end_range = datetime.datetime.date(end_range)
+
+    start_month = start_range.month
+    date_range = relativedelta(end_range, start_range).months + 1
+
+    purchase_months = []
+    purchase_amounts = {}
+
+    if purchases:
+        total = 0
+        for _ in range(date_range):
+            purchase_months.append(MONTHS[start_month])
+            purchase_amounts[start_month] = 0
+            start_month += 1
+            if start_month == 13:
+                start_month = 1
+
+        for purchase in purchases:
+            print(purchase['purchase_date'])
+            if start_range <= purchase['purchase_date'] <= end_range:
+                total += purchase['cost']
+            if start_range <= purchase['purchase_date'] <= end_range and purchase['purchase_date'].month in purchase_amounts:
+                purchase_amounts[purchase['purchase_date'].month] += purchase['cost']
+    else:
+        total = 0
+
+    return render_template('/customer/spending.html', total=total, 
+                           purchase_months=purchase_months, purchase_amounts=list(purchase_amounts.values()),
+                           start_range=start_range, end_range=end_range, search=False)
 @app.route('/logout')
 def logout():
     session.pop('username')

@@ -20,7 +20,17 @@
         <p> Total Spending from {{start_range}} to {{end_range}}: {{total}} </p>
         <meta id="purchase_months" data-name="{{purchase_months}}">
 
-        {% if purchases %}
+        {% if search %}
+        <form class="search_bar" action="/getSpendingRange" method="POST">
+            <input type="date" name="start_range" required>
+            <input type="date" name="end_range" required>
+
+            <input type="submit" value = SEARCH />
+        </form>
+        {% else %}
+            <a href="/getSpending"> Return </a>
+        {% endif %}
+
         <canvas id="spending" style="width:100%;max-width:600px"></canvas>
 
         <script>
@@ -45,9 +55,6 @@
               }
             });
         </script>
-        {% else %}
-        <p> No Purchases </p>
-        {% endif %}
 
         <br \> <a id="return" href="/custHome"> Return to Homepage </a>
     </body>
