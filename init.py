@@ -464,7 +464,7 @@ def custHome():
          
          natural join 
          
-         (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date >= %s) as tickets"""
+         (SELECT distinct flight_num, ticket_id FROM ticket WHERE cust_email=%s and depart_date >= %s) as tickets"""
     
     cursor.execute(query, (username, today))
     future_flights = cursor.fetchall()
@@ -489,7 +489,7 @@ def getFlights():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
@@ -508,6 +508,7 @@ def getFlights():
     FROM ticket
     GROUP BY flight_num) as tickets
 
+    WHERE numTickets < num_seats or numTickets is NULL
     ORDER BY depart_date
     """
 
@@ -527,7 +528,7 @@ def searchFlightsCust():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
@@ -570,7 +571,7 @@ def purchaseTwoWay():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
@@ -606,11 +607,11 @@ def purchaseOneWay():
     if first_flight_num == "-1" : twoTickets = False
     else: twoTickets = True
 
-    query = "SELECT COUNT(flight_num) as numTickets FROM ticket"
+    query = "SELECT MAX(ticket_id) as maxTicket FROM ticket"
     cursor.execute(query)
     tickets = cursor.fetchone()
 
-    if tickets: numTickets = tickets['numTickets']
+    if tickets: numTickets = tickets['maxTicket']
     else: numTickets = 0
 
     return render_template('/customer/purchase.html', twoTickets=twoTickets, flight_info=request.form, 
@@ -660,6 +661,17 @@ def purchaseTickets():
                                card_type, card_number, card_name, expiration, first_name,
                                last_name, email, date_of_birth, datetime.date.today(), datetime.datetime.now().time(), cost))
 
+    conn.commit()
+
+    return redirect(url_for("custHome"))
+
+@app.route('/cancelFlight', methods=['GET', 'POST'])
+def cancelFlight():
+    cursor = conn.cursor()
+
+    ticket_id = request.form['ticket_id']
+    query = "delete from ticket where ticket_id = %s"
+    cursor.execute(query, ticket_id)
     conn.commit()
 
     return redirect(url_for("custHome"))

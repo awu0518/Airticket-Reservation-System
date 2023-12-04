@@ -24,6 +24,7 @@
             {% if not future_flights %}
                 <th> No Flights </th>
             {% else %}
+                <th> Ticket ID </th>
                 <th> Flight Number </th>
                 <th> Departure City </th>
                 <th> Departure Date </th>
@@ -35,6 +36,7 @@
                 <th> </th>
                 {% for flight in future_flights %}
                     <tr>
+                        <td>{{flight['ticket_id']}}</td>
                         <td>{{flight['flight_num']}}</td>
                         <td>{{flight['depart_city']}}</td>
                         <td>{{flight['depart_date']}}</td>
@@ -45,8 +47,8 @@
                         <td>{{flight['status']}}</td>
                         <td>
                         {% if flight['depart_date'] > next_day %}
-                        <form class="search_bar" action="/getCustomersFromFlight" method="POST">
-                            <input type="hidden" name="flight_num" value={{flight['flight_num']}}>
+                        <form class="search_bar" action="/cancelFlight" method="POST">
+                            <input type="hidden" name="ticket_id" value={{flight['ticket_id']}}>
                             <input type="submit" value = CANCEL />
                         </form>
                         {% endif %}
