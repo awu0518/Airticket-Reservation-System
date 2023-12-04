@@ -32,6 +32,7 @@
                 <th> Arrival Date </th>
                 <th> Arrival Time </th>
                 <th> Status </th>
+                <th> </th>
                 {% for flight in future_flights %}
                     <tr>
                         <td>{{flight['flight_num']}}</td>
@@ -42,6 +43,14 @@
                         <td>{{flight['arrival_date']}}</td>
                         <td>{{flight['arrival_time']}}</td>
                         <td>{{flight['status']}}</td>
+                        <td>
+                        {% if flight['depart_date'] > next_day %}
+                        <form class="search_bar" action="/getCustomersFromFlight" method="POST">
+                            <input type="hidden" name="flight_num" value={{flight['flight_num']}}>
+                            <input type="submit" value = CANCEL />
+                        </form>
+                        {% endif %}
+                        </td>
                     </tr>    
                 {% endfor %}
             {% endif %}
@@ -59,6 +68,7 @@
                 <th> Arrival City </th>
                 <th> Arrival Date </th>
                 <th> Arrival Time </th>
+                <th> </th>
                 {% for flight in past_flights %}
                     <tr>
                         <td>{{flight['flight_num']}}</td>
@@ -68,6 +78,12 @@
                         <td>{{flight['arrival_city']}}</td>
                         <td>{{flight['arrival_date']}}</td>
                         <td>{{flight['arrival_time']}}</td>
+                        <td>
+                            <form class="search_bar" action="/getCustomersFromFlight" method="POST">
+                                <input type="hidden" name="flight_num" value={{flight['flight_num']}}>
+                                <input type="submit" value = REVIEW />
+                            </form>
+                        </td>
                     </tr>    
                 {% endfor %}
             {% endif %}

@@ -355,7 +355,7 @@ def customerInfo():
     customers = getCustomers(conn, airline)
 
     today = datetime.date.today()
-    last_month = today- relativedelta(months=1)
+    last_month = today - relativedelta(months=1)
     last_year = today - relativedelta(years=1)
     
     query = "select SUM(cost) as month from ticket where airline_name = %s and purchase_date <= %s and purchase_date >= %s"
@@ -481,7 +481,7 @@ def custHome():
     cursor.execute(query, (username, today))
     past_flights = cursor.fetchall()
 
-    return render_template('/customer/home.html', data=data, future_flights=future_flights, past_flights=past_flights)
+    return render_template('/customer/home.html', data=data, next_day=datetime.datetime.date((datetime.datetime.today() + relativedelta(days=1))), future_flights=future_flights, past_flights=past_flights)
 
 @app.route('/getFlights')
 def getFlights():
@@ -500,13 +500,15 @@ def getFlights():
             FROM flight, airport WHERE depart_from = airport_code) as T1, 
             (SELECT flight_num, airport_city, arrival_date, arrival_time 
             FROM flight, airport where arrive_at = airport_code) as T2 
-        WHERE T1.flight_num = T2.flight_num and T1.depart_date >= CAST(CURRENT_DATE() as Date) ORDER BY depart_date) as flights natural join airplane) as flights2
+        WHERE T1.flight_num = T2.flight_num and T1.depart_date >= CAST(CURRENT_DATE() as Date)) as flights natural join airplane) as flights2
 
     natural left outer join
 
     (SELECT flight_num, COUNT(flight_num) as numTickets
     FROM ticket
     GROUP BY flight_num) as tickets
+
+    ORDER BY depart_date
     """
 
     cursor.execute(query)
