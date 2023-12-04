@@ -180,7 +180,7 @@ def staffSearchFlight():
     FROM (SELECT airline_name, flight_num, airport_city, depart_date, depart_time, base_price, status FROM flight, airport WHERE depart_from = airport_code) as T1, 
          (SELECT flight_num, airport_city, arrival_date, arrival_time FROM flight, airport where arrive_at = airport_code) as T2 
     WHERE T1.flight_num = T2.flight_num and airline_name = %s and T1.depart_date >= %s and T1.depart_date <= %s and T1.airport_city = %s and T2.airport_city = %s ORDER BY depart_date"""
-    
+
     cursor.execute(query, (getAirlineFromStaff(conn, username), start_date, end_date, depart, arrival))
     flights = cursor.fetchall()
 
@@ -560,6 +560,8 @@ def purchaseTwoWay():
     cursor = conn.cursor()
 
     first_flight = request.form['first_flight']
+    first_flight_airline = request.form['first_flight_airline']
+    first_cost = request.form['first_cost']
     depart_from = request.form['departure_airport']
     arrive_to = request.form['arrival_airport']
     depart_date = str(request.form['departure_date'])
@@ -590,15 +592,75 @@ def purchaseTwoWay():
     flights = cursor.fetchall()
 
     return render_template('/customer/tickets.html', today=datetime.date.today(), airlines = getAirlines(conn), 
-                           airports=getAirports(conn), flights=flights, first_flight = first_flight, search=False)
- 
+                           airports=getAirports(conn), flights=flights, first_flight = first_flight, 
+                           first_flight_airline=first_flight_airline, first_cost = first_cost, search=False)
+
 @app.route('/purchaseOneWay', methods=['GET', 'POST'])
 def purchaseOneWay():
-    first_flight = request.form['first_flight']
-    flight_num = request.form['flight_num']
+    cursor = conn.cursor()
 
-    print(first_flight, flight_num)
-    return render_template('/customer/purchase.html')
+
+    first_flight_num = request.form['first_flight']
+    if first_flight_num == "-1" : twoTickets = False
+    else: twoTickets = True
+
+    query = "SELECT COUNT(flight_num) as numTickets FROM ticket"
+    cursor.execute(query)
+    tickets = cursor.fetchone()
+
+    if tickets: numTickets = tickets['numTickets']
+    else: numTickets = 0
+
+    return render_template('/customer/purchase.html', twoTickets=twoTickets, flight_info=request.form, 
+                           ticketOne = numTickets + 1, ticketTwo = numTickets + 2)
+
+@app.route('/purchaseTickets', methods=['GET', 'POST'])
+def purchaseTickets():
+    email = session['username']
+    cursor = conn.cursor()
+
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    date_of_birth = request.form['date_of_birth']
+
+    card_number = request.form['card_number']
+    card_name = request.form['card_name']
+    card_type = request.form['card_type']
+    expiration = request.form['expiration']
+
+    first_flight = request.form['first_flight']
+    ticketOne = request.form['ticketOne']
+    ticketTwo = request.form['ticketTwo']
+
+    query = "insert into ticket values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+    if first_flight != '-1':
+        first_flight_airline = request.form['first_flight_airline']
+        first_cost = request.form['first_cost']
+        airplane_id, depart_date, depart_time = flightInfoFromTicket(conn, first_flight_airline, first_flight)
+
+        cursor.execute(query, (first_flight_airline, airplane_id, first_flight, ticketOne, depart_date, depart_time,
+                               card_type, card_number, card_name, expiration, first_name,
+                               last_name, email, date_of_birth, datetime.date.today(), datetime.datetime.now().time(), first_cost))
+        conn.commit()
+ 
+    flight_num = request.form['flight_num']
+    airline = request.form['airline']
+    cost = request.form['cost']
+    airplane_id, depart_date, depart_time = flightInfoFromTicket(conn, airline, flight_num)
+
+    if first_flight != '-1':
+        cursor.execute(query, (airline, airplane_id, flight_num, ticketTwo, depart_date, depart_time,
+                               card_type, card_number, card_name, expiration, first_name,
+                               last_name, email, date_of_birth, datetime.date.today(), datetime.datetime.now().time(), cost))
+    else:
+        cursor.execute(query, (airline, airplane_id, flight_num, ticketOne, depart_date, depart_time,
+                               card_type, card_number, card_name, expiration, first_name,
+                               last_name, email, date_of_birth, datetime.date.today(), datetime.datetime.now().time(), cost))
+
+    conn.commit()
+
+    return redirect(url_for("custHome"))
 
 @app.route('/logout')
 def logout():
