@@ -43,4 +43,13 @@ def flightInfoFromTicket(conn, airline, flight_num):
     flight_info = cursor.fetchone()
     return flight_info['airplane_id'], flight_info['depart_date'], flight_info['depart_time']
 
+def flightInfoForReview(conn, ticket_id):
+    cursor = conn.cursor()
+    query = 'SELECT airline_name, airplane_id, flight_num, depart_date, depart_time FROM ticket WHERE ticket_id=%s'
+    cursor.execute(query, ticket_id)
+    
+    flight_info = cursor.fetchone()
+    return flight_info['airline_name'], flight_info['airplane_id'], flight_info['flight_num'], flight_info['depart_date'], flight_info['depart_time']
+
+
 

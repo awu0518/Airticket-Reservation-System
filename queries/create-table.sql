@@ -118,9 +118,10 @@ create table Review (
     depart_time         time not null,
     comments            varchar(600),
     email               varchar(20) not null,
+    ticket_id           int(5) unsigned not null
 
-    primary key(email, airline_name, airplane_id, flight_num, depart_date, depart_time),
-    foreign key(airline_name, airplane_id, flight_num, depart_date, depart_time) references Ticket(airline_name, airplane_id, flight_num, depart_date, depart_time),
+    primary key(email, airline_name, airplane_id, flight_num, depart_date, depart_time, ticket_id),
+    foreign key(airline_name, airplane_id, flight_num, depart_date, depart_time, ticket_id) references Ticket(airline_name, airplane_id, flight_num, depart_date, depart_time, ticket_id),
     foreign key(email) references Customer(email)
 );
 

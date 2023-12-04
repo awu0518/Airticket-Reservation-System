@@ -63,4 +63,7 @@ table {
     padding-right: 5px;
 }
 
-
+#comments {
+    height: 80px;
+    width: 150px;
+}

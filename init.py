@@ -476,7 +476,7 @@ def custHome():
          
          natural join 
          
-         (SELECT distinct flight_num FROM ticket WHERE cust_email=%s and depart_date < %s) as tickets"""
+         (SELECT distinct flight_num, ticket_id FROM ticket WHERE cust_email=%s and depart_date < %s) as tickets"""
     
     cursor.execute(query, (username, today))
     past_flights = cursor.fetchall()
@@ -673,6 +673,43 @@ def cancelFlight():
     query = "delete from ticket where ticket_id = %s"
     cursor.execute(query, ticket_id)
     conn.commit()
+
+    return redirect(url_for("custHome"))
+
+@app.route('/getReviewPage', methods=['GET', 'POST'])
+def getReviewPage():
+    cursor = conn.cursor()
+    ticket_id = request.form['ticket_id']
+
+    query = "SELECT rating, comments FROM review WHERE ticket_id = %s"
+    cursor.execute(query, ticket_id)
+    review = cursor.fetchone()
+
+    return render_template("/customer/review.html", ticket_id=ticket_id, review=review)
+
+@app.route('/reviewFlight', methods=['GET', 'POST'])
+def reviewFlight():
+    cursor = conn.cursor()
+    ticket_id = request.form['ticket_id']
+
+    query = "SELECT rating, comments FROM review WHERE ticket_id = %s"
+    cursor.execute(query, ticket_id)
+    review = cursor.fetchone()
+
+    rating = request.form['rating']
+    comments = request.form['comments']
+
+    if review:
+        query = "update review set rating=%s, comments=%s where ticket_id = %s"
+        cursor.execute(query, (rating, comments, ticket_id))
+        conn.commit()
+    else:
+        email = session['username']
+        airline_name, airplane_id, flight_num, depart_date, depart_time = flightInfoForReview(conn, ticket_id)
+
+        query = "insert into review values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(query, (airline_name, airplane_id, flight_num, rating, depart_date, depart_time, comments, email, ticket_id))
+        conn.commit()
 
     return redirect(url_for("custHome"))
 
