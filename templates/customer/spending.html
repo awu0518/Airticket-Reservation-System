@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+        <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+        </script>
+    </head>
+
+    <header>
+        <h1 id="header-text"> Wu Flights </h1>
+        <div class="login">
+            <a id="login-link" href="/custHome"> Main</a>
+            <a id="login-link" href="/logout"> Logout</a>
+        </div>
+    </header>
+
+    <body>
+        <p> Total Spending from {{start_range}} to {{end_range}}: {{total}} </p>
+        <meta id="purchase_months" data-name="{{purchase_months}}">
+
+        {% if purchases %}
+        <canvas id="spending" style="width:100%;max-width:600px"></canvas>
+
+        <script>
+            xValues = JSON.parse('{{purchase_months|tojson}}');
+            yValues = JSON.parse('{{purchase_amounts|tojson}}');
+            
+            new Chart("spending", {
+              type: "bar",
+              data: {
+                labels: xValues,
+                datasets: [{
+                  backgroundColor: "black",
+                  data: yValues
+                }]
+              },
+              options: {
+                legend: {display: false},
+                title: {
+                  display: true,
+                  text: "Spending"
+                }
+              }
+            });
+        </script>
+        {% else %}
+        <p> No Purchases </p>
+        {% endif %}
+
+        <br \> <a id="return" href="/custHome"> Return to Homepage </a>
+    </body>
+
+    <footer> </footer>
+</html>

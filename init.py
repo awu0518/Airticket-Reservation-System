@@ -713,6 +713,48 @@ def reviewFlight():
 
     return redirect(url_for("custHome"))
 
+MONTHS = {1: "January", 2: "Febuary", 3: "March", 4: "April", 5: "May", 6: "June",
+               7: "July", 8: "August", 9: "Sepetember", 10: "October", 11: "November", 12: "December"}
+
+@app.route('/getSpending')
+def getSpending():
+    cursor = conn.cursor()
+    email = session['username']
+
+    query = "SELECT cost, purchase_date FROM ticket WHERE cust_email=%s ORDER BY purchase_date DESC"
+    cursor.execute(query, email)
+    purchases = cursor.fetchall()
+
+    today = datetime.datetime.today()
+    last_year = datetime.datetime.date(today - relativedelta(years=1))
+    six_month_date = datetime.datetime.date(today - relativedelta(months=6))
+    purchase_months = []
+    purchase_amounts = {}
+
+    if purchases:
+        total = 0
+
+        six_month = (today - relativedelta(months=5)).month
+
+        for _ in range(6):
+            purchase_months.append(MONTHS[six_month])
+            purchase_amounts[six_month] = 0
+            six_month += 1
+            if six_month == 13:
+                six_month = 1
+
+        for purchase in purchases:
+            if purchase['purchase_date'] >= last_year:
+                total += purchase['cost']
+            if purchase['purchase_date'] >= six_month_date and purchase['purchase_date'].month in purchase_amounts:
+                purchase_amounts[purchase['purchase_date'].month] += purchase['cost']
+    else:
+        total = 0
+
+    return render_template('/customer/spending.html', purchases=purchases, total=total, 
+                           purchase_months = purchase_months, purchase_amounts=list(purchase_amounts.values()), 
+                           start_range=last_year, end_range=datetime.datetime.date(today))
+
 @app.route('/logout')
 def logout():
     session.pop('username')
