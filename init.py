@@ -593,6 +593,8 @@ def searchFlightsCust():
     (SELECT flight_num, COUNT(flight_num) as numTickets
     FROM ticket
     GROUP BY flight_num) as tickets
+
+    WHERE numTickets < num_seats or numTickets is NULL
     """
 
     cursor.execute(query, (depart_from, arrive_to, depart_date))
@@ -636,6 +638,8 @@ def purchaseTwoWay():
     (SELECT flight_num, COUNT(flight_num) as numTickets
     FROM ticket
     GROUP BY flight_num) as tickets
+
+    WHERE numTickets < num_seats or numTickets is NULL
     """
 
     cursor.execute(query, (depart_from, arrive_to, depart_date))
@@ -687,7 +691,7 @@ def purchaseTickets():
     if first_flight != '-1':
         first_flight_airline = request.form['first_flight_airline']
         first_cost = request.form['first_cost']
-        airplane_id, depart_date, depart_time = flightInfoFromTicket(conn, first_flight_airline, first_flight)
+        airplane_id, depart_date, depart_time = moreFlightInfo(conn, first_flight_airline, first_flight)
 
         cursor.execute(query, (first_flight_airline, airplane_id, first_flight, ticketOne, depart_date, depart_time,
                                card_type, card_number, card_name, expiration, first_name,
@@ -697,7 +701,7 @@ def purchaseTickets():
     flight_num = request.form['flight_num']
     airline = request.form['airline']
     cost = request.form['cost']
-    airplane_id, depart_date, depart_time = flightInfoFromTicket(conn, airline, flight_num)
+    airplane_id, depart_date, depart_time = moreFlightInfo(conn, airline, flight_num)
 
     if first_flight != '-1':
         cursor.execute(query, (airline, airplane_id, flight_num, ticketTwo, depart_date, depart_time,

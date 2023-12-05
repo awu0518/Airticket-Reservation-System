@@ -35,7 +35,7 @@ def getCustomers(conn, airline):
     cursor.execute(query, airline)
     return cursor.fetchall()
 
-def flightInfoFromTicket(conn, airline, flight_num):
+def moreFlightInfo(conn, airline, flight_num):
     cursor = conn.cursor()
     query = 'SELECT airplane_id, depart_date, depart_time FROM flight WHERE airline_name = %s and flight_num = %s'
     cursor.execute(query, (airline, flight_num))
