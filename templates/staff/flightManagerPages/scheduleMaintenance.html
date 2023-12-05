@@ -14,6 +14,10 @@
     </header>
 
     <body>
+        {% if error %}
+		    <p class="error"><strong>Error:</strong> {{error}}</p>
+	    {% endif %}
+        
         <form class="search_bar" action="/scheduleMaintenance" method="POST"> 
             <label id="search_box"> Airplane ID </label> 
             <select name="airplane_id" required> 

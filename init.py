@@ -252,10 +252,34 @@ def addFlight():
     arrival_date = request.form['arrival_date']
     arrival_time = request.form['arrival_time']
 
-    # add checks for flight insertion
+    query = "select * from maintenance where airline_name = %s and airplane_id = %s"
+    cursor.execute(query, (airline, airplane_id))
+    maintenances = cursor.fetchall()
 
-    print(airline, airplane_id, flight_id, depart_airport, depart_date, depart_time,
-                           arrival_airport, arrival_date, arrival_time, price)
+    depart_datetime = datetime.datetime.combine(
+        datetime.date(int(depart_date[0:4]), int(depart_date[5:7]), int(depart_date[8:])), 
+        datetime.time(int(depart_time[0:2]), int(depart_time[3:])))
+    arrive_datetime = datetime.datetime.combine(
+        datetime.date(int(arrival_date[0:4]), int(arrival_date[5:7]), int(arrival_date[8:])), 
+        datetime.time(int(arrival_time[0:2]), int(arrival_time[3:])))
+    
+    if maintenances:
+        for maintenance in maintenances:
+            start_time = str(maintenance['start_time'])
+            end_time = str(maintenance['end_time'])
+            start_datetime = datetime.datetime.combine(maintenance['start_date'], datetime.time(int(start_time[0:2]), int(start_time[3:5])))
+            end_datetime = datetime.datetime.combine(maintenance['end_date'], datetime.time(int(end_time[0:2]), int(end_time[3:5])))
+
+            print(start_datetime, end_datetime, depart_datetime, arrive_datetime)
+            print(max(start_datetime, depart_datetime))
+            print(min(end_datetime, arrive_datetime))
+            overlap = max(start_datetime, depart_datetime) <= min(end_datetime, arrive_datetime)
+            print(overlap)
+
+            if overlap:
+                return render_template('/staff/flightManagerPages/addFlight.html', error="Maintenance Scheduled During Flight", 
+                                airports=getAirports(conn), airplanes=getAirplanesForAirline(conn, airline))
+    
     
     query = "insert into flight values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     cursor.execute(query, (airline, airplane_id, flight_id, depart_airport, depart_date, depart_time,
@@ -338,7 +362,30 @@ def scheduleMaintanence():
     end_date = request.form['end_date']
     end_time = request.form['end_time']
 
-    # add check for flights scheduled during maintenance time
+    start_datetime = datetime.datetime.combine(
+        datetime.date(int(start_date[0:4]), int(start_date[5:7]), int(start_date[8:])), 
+        datetime.time(int(start_time[0:2]), int(start_time[3:])))
+    end_datetime = datetime.datetime.combine(
+        datetime.date(int(end_date[0:4]), int(end_date[5:7]), int(end_date[8:])), 
+        datetime.time(int(end_time[0:2]), int(end_time[3:])))
+
+    query = "select * from flight where airline_name=%s and airplane_id=%s"
+    cursor.execute(query, (airline, airplane_id))
+    flights = cursor.fetchall()
+
+    if flights:
+        for flight in flights:
+            depart_time = str(flight['depart_time'])
+            arrival_time = str(flight['arrival_time'])
+            depart_datetime = datetime.datetime.combine(flight['depart_date'], datetime.time(int(depart_time[0:2]), int(depart_time[3:5])))
+            arrive_datetime = datetime.datetime.combine(flight['arrival_date'], datetime.time(int(arrival_time[0:2]), int(arrival_time[3:5])))
+
+            overlap = max(start_datetime, depart_datetime) <= min(end_datetime, arrive_datetime)
+            print(overlap)
+
+            if overlap:
+                return render_template('/staff/flightManagerPages/scheduleMaintenance.html', airplanes=getAirplanesForAirline(conn, airline),
+                                        error="Maintenance Scheduled During Flight")
 
     query = "insert into maintenance values (%s, %s, %s, %s, %s, %s)"
     cursor.execute(query, (airline, airplane_id, start_date, start_time, end_date, end_time))
