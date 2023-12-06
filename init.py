@@ -234,7 +234,7 @@ def changeStatus():
 def addFlightPage():
     airline = getAirlineFromStaff(conn, session['username'])
     airports = getAirports(conn)
-    airplanes = getAirplanesForAirline(conn, airline)
+    airplanes = getUniqueAirplanesForAirline(conn, airline)
     return render_template('/staff/flightManagerPages/addFlight.html', airports=airports, airplanes=airplanes)
 
 @app.route('/addFlight', methods=['GET', 'POST'])

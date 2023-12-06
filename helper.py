@@ -8,6 +8,11 @@ def getAirlines(conn):
     cursor.execute("SELECT airline_name FROM airline")
     return cursor.fetchall()
 
+def getUniqueAirplanesForAirline(conn, airline):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM airplane WHERE airline_name=%s", airline)
+    return cursor.fetchall()
+
 def getAirplanesForAirline(conn, airline):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM airplane natural left outer join maintenance WHERE airline_name=%s", airline)
