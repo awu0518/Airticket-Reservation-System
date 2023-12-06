@@ -536,7 +536,7 @@ def getFlights():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
@@ -575,7 +575,7 @@ def searchFlightsCust():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
@@ -620,7 +620,7 @@ def purchaseTwoWay():
 
     query = """
     SELECT airline_name, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, 
-        IF (num_seats * 0.8 <= numTickets + 1, base_price * 1.25, base_price) as price
+        IF (num_seats * 0.8 <= numTickets, base_price * 1.25, base_price) as price
     FROM 
 
     (SELECT airline_name, airplane_id, flight_num, depart_city, depart_date, depart_time, arrival_city, arrival_date, arrival_time, base_price, status, num_seats 
